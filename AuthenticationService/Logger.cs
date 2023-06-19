@@ -1,30 +1,49 @@
 using System;
 using System.IO;
+using System.Threading;
 
 namespace AuthenticationService
 {
 	public class Logger : ILogger
 	{
-		private static readonly string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
-		private readonly string currentLogsDir;
-		private readonly string eventFile;
-		private readonly string errorFile;
-		public Logger() {
-			currentLogsDir = Path.Combine(logsDir, GenerateDTString());
-			Directory.CreateDirectory(currentLogsDir);
-			eventFile = Path.Combine(currentLogsDir, "events.txt");
-			errorFile = Path.Combine(currentLogsDir, "errors.txt");
-		}
+		private readonly ReaderWriterLockSlim lock_ = new();
 
-		private static string GenerateDTString() => DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss");
+		private string LogDirectory { get; set; }
+
+		public Logger()
+		{
+			LogDirectory = AppDomain.CurrentDomain.BaseDirectory + @"/_logs/" + DateTime.Now.ToString("dd-MM-yy HH-mm-ss") + @"/";
+
+			if (!Directory.Exists(LogDirectory))
+				Directory.CreateDirectory(LogDirectory);
+		}
 
 		public void WriteEvent(string eventMessage)
 		{
-			File.AppendAllText(eventFile, eventMessage + '\n');
+			lock_.EnterWriteLock();
+			try
+			{
+				using StreamWriter writer = new(LogDirectory + "events.txt", append: true);
+				writer.WriteLine(eventMessage);
+			}
+			finally
+			{
+				lock_.ExitWriteLock();
+			}
 		}
+
 		public void WriteError(string errorMessage)
 		{
-			File.AppendAllText(errorFile, errorMessage + '\n');
+			lock_.EnterWriteLock();
+			try
+			{
+				using StreamWriter writer = new("errors.txt", append: true);
+				writer.WriteLine(errorMessage);
+			}
+			finally
+			{
+				lock_.ExitWriteLock();
+			}
 		}
 	}
 }
