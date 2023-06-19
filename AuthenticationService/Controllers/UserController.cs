@@ -15,8 +15,6 @@ namespace AuthenticationService.Controllers
 		{
 			_logger = logger;
 			_mapper = mapper;
-			logger.WriteEvent("Event message");
-			logger.WriteError("Error message");
 		}
 
 		[HttpGet]
