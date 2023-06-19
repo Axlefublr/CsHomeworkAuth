@@ -2,7 +2,7 @@ using System;
 
 namespace AuthenticationService
 {
-	public class Logger
+	public class Logger : ILogger
 	{
 		public void WriteEvent(string eventMessage)
 		{

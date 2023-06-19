@@ -8,12 +8,15 @@ namespace AuthenticationService.Controllers
 	[Route("[controller]")]
 	public class UserController : ControllerBase
 	{
-		public UserController()
+		private ILogger _logger;
+		public UserController(ILogger logger)
 		{
-			Logger logger = new();
+			_logger = logger;
 			logger.WriteEvent("Event message");
 			logger.WriteError("Error message");
 		}
+
+		[HttpGet]
 		public User GetUser()
 		{
 			return new User()
