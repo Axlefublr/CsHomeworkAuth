@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AuthenticationService
 {
@@ -33,7 +34,7 @@ namespace AuthenticationService
 
 		public User GetByLogin(string login)
 		{
-			throw new NotImplementedException();
+			return GetAll().FirstOrDefault(user => user.Login == login);
 		}
 	}
 }

@@ -11,10 +11,12 @@ namespace AuthenticationService.Controllers
 	{
 		private readonly ILogger _logger;
 		private readonly IMapper _mapper;
-		public UserController(ILogger logger, IMapper mapper)
+		private readonly IUserRepository _userRepository;
+		public UserController(ILogger logger, IMapper mapper, IUserRepository userRepository)
 		{
 			_logger = logger;
 			_mapper = mapper;
+			_userRepository = userRepository;
 		}
 
 		[HttpGet]
