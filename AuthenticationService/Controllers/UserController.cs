@@ -1,6 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Security.Authentication;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationService.Controllers
@@ -19,6 +26,7 @@ namespace AuthenticationService.Controllers
 			_userRepository = userRepository;
 		}
 
+		[Authorize]
 		[HttpGet]
 		[Route("viewmodel")]
 		public UserViewModel GetUserViewModel()
@@ -35,5 +43,36 @@ namespace AuthenticationService.Controllers
 			UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
 			return userViewModel;
 		}
+
+		[HttpPost]
+		[Route("authenticate")]
+		public async Task<UserViewModel> AuthenticateAsync(string login, string password)
+		{
+			if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+			{
+				throw new ArgumentNullException("The request is empty. Login is: " + nameof(login) + ". Password is: " + nameof(password));
+			}
+			User user = _userRepository.GetByLogin(login) ?? throw new AuthenticationException("The user is not found");
+			if (user.Password != password)
+			{
+				throw new AuthenticationException("The password is incorrect");
+			}
+
+			var claims = new List<Claim>
+			{
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login)
+			};
+
+			ClaimsIdentity claimsIdentity = new(
+				claims,
+				"AppCookie",
+				ClaimsIdentity.DefaultNameClaimType,
+				ClaimsIdentity.DefaultRoleClaimType);
+
+			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+			return _mapper.Map<UserViewModel>(user);
+		}
+
 	}
 }

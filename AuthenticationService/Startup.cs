@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -41,6 +43,18 @@ namespace AuthenticationService
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthenticationService", Version = "v1" });
 			});
+			services.AddAuthentication(options => options.DefaultScheme = "Cookies")
+				.AddCookie("Cookies", options =>
+				{
+					options.Events = new CookieAuthenticationEvents
+					{
+						OnRedirectToLogin = redirectContext =>
+						{
+							redirectContext.HttpContext.Response.StatusCode = 401;
+							return Task.CompletedTask;
+						}
+					};
+				});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,6 +70,8 @@ namespace AuthenticationService
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseAuthentication();
 
 			app.UseAuthorization();
 
