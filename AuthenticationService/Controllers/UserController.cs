@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Globalization;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuthenticationService.Controllers
 {
+	[ExceptionHandler]
 	[ApiController]
 	[Route("[controller]")]
 	public class UserController : ControllerBase
@@ -26,7 +28,7 @@ namespace AuthenticationService.Controllers
 			_userRepository = userRepository;
 		}
 
-		[Authorize]
+		[Authorize(Roles = "Administrator")]
 		[HttpGet]
 		[Route("viewmodel")]
 		public UserViewModel GetUserViewModel()
@@ -46,7 +48,7 @@ namespace AuthenticationService.Controllers
 
 		[HttpPost]
 		[Route("authenticate")]
-		public async Task<UserViewModel> AuthenticateAsync(string login, string password)
+		public async Task<UserViewModel> Authenticate(string login, string password)
 		{
 			if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
 			{
@@ -60,14 +62,16 @@ namespace AuthenticationService.Controllers
 
 			var claims = new List<Claim>
 			{
-				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login)
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Role.Name)
 			};
 
 			ClaimsIdentity claimsIdentity = new(
 				claims,
 				"AppCookie",
 				ClaimsIdentity.DefaultNameClaimType,
-				ClaimsIdentity.DefaultRoleClaimType);
+				ClaimsIdentity.DefaultRoleClaimType
+			);
 
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 

@@ -75,6 +75,8 @@ namespace AuthenticationService
 
 			app.UseAuthorization();
 
+			app.UseLogMiddleware();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
