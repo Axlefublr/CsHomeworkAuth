@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AuthenticationService.Controllers
+namespace AuthenticationService.BLL.Controllers
 {
 	[ExceptionHandler]
 	[ApiController]

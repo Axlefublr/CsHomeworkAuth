@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace AuthenticationService
+namespace AuthenticationService.BLL.Middlewares
 {
 	public class LogMiddleware
 	{
@@ -16,7 +16,7 @@ namespace AuthenticationService
 
 		public async Task Invoke(HttpContext httpContext)
 		{
-			_logger.WriteEvent("I'm your middleware");
+			_logger.WriteEvent($"Your ip address is: {httpContext.Connection.LocalIpAddress}");
 			await _next(httpContext);
 		}
 	}

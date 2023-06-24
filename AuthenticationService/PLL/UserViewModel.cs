@@ -1,7 +1,7 @@
 using System;
 using System.Net.Mail;
 
-namespace AuthenticationService
+namespace AuthenticationService.PLL
 {
 	public class UserViewModel
 	{
